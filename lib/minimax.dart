@@ -1,16 +1,20 @@
+import 'dart:math';
+
 class Minimax {
   List<String> originalBoard = List.filled(9, '');
-  String user = 'X';
-  String minimaxBot = 'O';
+  final String user = 'X';
+  final String minimaxBot = 'O';
   String currentPlayer = 'X';
 
   List<int> _emptyBoardList(List<String> board) {
     List<int> emptyIndexies = [];
-    board.map((e) => e == '' ? emptyIndexies.add(board.indexOf(e)) : null);
+    board.asMap().forEach((i, e) {
+      if (e == '') emptyIndexies.add(i);
+    });
     return emptyIndexies;
   }
 
-  bool winning(board, player) {
+  bool winning(List<String> board, String player) {
     if ((board[0] == player && board[1] == player && board[2] == player) ||
         (board[3] == player && board[4] == player && board[5] == player) ||
         (board[6] == player && board[7] == player && board[8] == player) ||
@@ -25,85 +29,71 @@ class Minimax {
     }
   }
 
-  String winner() {
-    if (winning(originalBoard, minimaxBot)) {
-      return minimaxBot;
-    } else {
-      return user;
-    }
-  }
-
-  bool gameEnded() {
+  String? gameResult() {
     if (winning(originalBoard, 'X')) {
-      return true;
+      return 'X';
     } else if (winning(originalBoard, 'O')) {
-      return true;
+      return 'O';
+    } else if (_emptyBoardList(originalBoard).isEmpty) {
+      return 'DrawGame';
     } else {
-      return false;
+      return null;
     }
   }
 
-  _minimax(List<String> board, int depth, String player) {
-    List<int> availSpots = _emptyBoardList(board);
-
-    if (winning(board, player)) {
-      return 10;
-    } else if (winning(board, player)) {
-      return -10;
-    } else if (availSpots.isEmpty) {
+  int _minimax(List<String> board, int depth, bool isMaximizing) {
+    String player = isMaximizing ? minimaxBot : user;
+    if (winning(board, minimaxBot)) {
+      return 10 - depth;
+    } else if (winning(board, user)) {
+      return depth - 10;
+    } else if (_emptyBoardList(board).isEmpty) {
       return 0;
     }
 
-    if (player == 'X') {
-      int bestScore = -1000;
-      for (int x = 0; x < 9; x++) {
-        if (board[x] == '') {
-          board[x] = minimaxBot;
-          int score = _minimax(board, depth + 1, player);
-          board[x] = '';
-          if (score > bestScore) {
-            bestScore = score;
-          }
-        }
-      }
-      return bestScore;
-    } else {
-      int bestScore = 1000;
-      for (int x = 0; x < 9; x++) {
-        if (board[x] == '') {
-          board[x] = user;
-          int score = _minimax(board, depth + 1, player);
-          board[x] = '';
-          if (score > bestScore) {
-            bestScore = score;
-          }
-        }
-      }
-      return bestScore;
+    var bestScore = isMaximizing ? -1000 : 1000;
+    final availableSpots = _emptyBoardList(board);
+    for (final index in availableSpots) {
+      board[index] = player;
+      final score = _minimax(board, depth + 1, !isMaximizing);
+      board[index] = '';
+      bestScore = isMaximizing ? max(bestScore, score) : min(bestScore, score);
     }
+
+    return bestScore;
   }
 
-  void botMove() {
-    int move = -1;
+  void _botMove() {
     int bestScore = -1000;
-    List<String> tBoard = originalBoard;
-    for (int x = 0; x < 9; x++) {
-      if (tBoard[x] == '') {
-        tBoard[x] = minimaxBot;
-        int score = _minimax(tBoard, 0, minimaxBot);
-        tBoard[x] = '';
+    int bestMove = -1;
+    for (int i = 0; i < originalBoard.length; i++) {
+      if (originalBoard[i] == '') {
+        originalBoard[i] = minimaxBot;
+        int score = _minimax(originalBoard, 0, false);
+        originalBoard[i] = '';
         if (score > bestScore) {
           bestScore = score;
-          move = x;
+          bestMove = i;
         }
       }
     }
 
-    originalBoard[move] = minimaxBot;
+    originalBoard[bestMove] = minimaxBot;
+    currentPlayer = 'X';
   }
 
   userMove(int index) {
-    originalBoard[index] = user;
-    botMove();
+    if (originalBoard[index] == '') {
+      originalBoard[index] = user;
+      if (_emptyBoardList(originalBoard).isNotEmpty) {
+        currentPlayer = 'O';
+        _botMove();
+      }
+    }
+  }
+
+  clear() {
+    originalBoard = List.filled(9, '');
+    currentPlayer = 'X';
   }
 }

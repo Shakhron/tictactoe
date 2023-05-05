@@ -100,24 +100,28 @@ class _TicTacToeState extends State<TicTacToe> {
             ],
           ),
           SizedBox(height: size.height * 0.02),
-          if (minimax.gameEnded())
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'images/${minimax.winner().toLowerCase()}.png',
-                  width: 32,
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'WIN!',
-                  style: TextStyle(
-                    fontSize: 32,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+          if (minimax.gameResult() == 'DrawGame')
+            Image.asset(
+              'images/${minimax.gameResult()!.toLowerCase()}.png',
+              width: 45,
+            ),
+          if (minimax.gameResult() == 'X')
+            const Text(
+              'You WIN!',
+              style: TextStyle(
+                fontSize: 32,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          if (minimax.gameResult() == 'O')
+            const Text(
+              'You LOSE!',
+              style: TextStyle(
+                fontSize: 32,
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           SizedBox(height: size.height * 0.025),
           Padding(
@@ -166,6 +170,16 @@ class _TicTacToeState extends State<TicTacToe> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: IconButton(
+        icon: const Icon(
+          Icons.restart_alt,
+          color: Colors.amber,
+        ),
+        onPressed: () {
+          minimax.clear();
+          setState(() {});
+        },
       ),
     );
   }
