@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tictactoe/minimax.dart';
 
 class TicTacToe extends StatefulWidget {
   const TicTacToe({super.key});
@@ -8,48 +9,7 @@ class TicTacToe extends StatefulWidget {
 }
 
 class _TicTacToeState extends State<TicTacToe> {
-  final List<String> _board = List.filled(9, '');
-  String _currentPlayer = 'X';
-  String _winner = "";
-
-  _play(int index) {
-    if (_winner != '' || _board[index] != '') {
-      return;
-    }
-    setState(() {
-      _board[index] = _currentPlayer;
-      _currentPlayer = _currentPlayer == 'X' ? 'O' : 'X';
-      _checkForWinner();
-    });
-  }
-
-  _checkForWinner() {
-    List<List<int>> lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-
-    for (List<int> line in lines) {
-      String player1 = _board[line[0]];
-      String player2 = _board[line[1]];
-      String player3 = _board[line[2]];
-      if (player1 == '' || player2 == '' || player3 == '') {
-        continue;
-      }
-      if (player1 == player2 && player2 == player3) {
-        setState(() {
-          _winner = player1;
-        });
-        break;
-      }
-    }
-  }
+  final Minimax minimax = Minimax();
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +27,7 @@ class _TicTacToeState extends State<TicTacToe> {
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: _currentPlayer == 'X'
+                    color: minimax.currentPlayer == 'X'
                         ? const Color(0xfffed031)
                         : const Color(0xff332167),
                   ),
@@ -104,7 +64,7 @@ class _TicTacToeState extends State<TicTacToe> {
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: _currentPlayer == 'O'
+                    color: minimax.currentPlayer == 'O'
                         ? const Color(0xfffed031)
                         : const Color(0xff332167),
                   ),
@@ -140,12 +100,12 @@ class _TicTacToeState extends State<TicTacToe> {
             ],
           ),
           SizedBox(height: size.height * 0.02),
-          if (_winner != '')
+          if (minimax.gameEnded())
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'images/${_winner.toLowerCase()}.png',
+                  'images/${minimax.winner().toLowerCase()}.png',
                   width: 32,
                 ),
                 const SizedBox(width: 8),
@@ -179,18 +139,25 @@ class _TicTacToeState extends State<TicTacToe> {
                 ),
                 itemBuilder: (context, index) {
                   return GestureDetector(
-                    onTap: () => _play(index),
+                    onTap: () {
+                      if (minimax.currentPlayer == minimax.minimaxBot) {
+                        return;
+                      } else {
+                        minimax.userMove(index);
+                        setState(() {});
+                      }
+                    },
                     child: Container(
                       decoration: const BoxDecoration(
                         color: Color(0xff332167),
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
-                      child: _board[index] == ''
+                      child: minimax.originalBoard[index] == ''
                           ? const SizedBox()
                           : Padding(
                               padding: const EdgeInsets.all(20.0),
                               child: Image.asset(
-                                  'images/${_board[index].toLowerCase()}.png'),
+                                  'images/${minimax.originalBoard[index].toLowerCase()}.png'),
                             ),
                     ),
                   );
