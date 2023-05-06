@@ -14,6 +14,7 @@ class _TicTacToeState extends State<TicTacToe> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: const Color(0xff36248d),
       body: Column(
@@ -24,105 +25,13 @@ class _TicTacToeState extends State<TicTacToe> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: minimax.currentPlayer == 'X'
-                        ? const Color(0xfffed031)
-                        : const Color(0xff332167),
-                  ),
-                  color: const Color(0xff332167),
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        'images/user.png',
-                        width: 55,
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'User',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 30,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Image.asset(
-                        'images/x.png',
-                        width: 30,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              _playerCard('X', minimax.currentPlayer),
               SizedBox(width: size.width * 0.075),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: minimax.currentPlayer == 'O'
-                        ? const Color(0xfffed031)
-                        : const Color(0xff332167),
-                  ),
-                  color: const Color(0xff332167),
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        'images/bot.png',
-                        width: 55,
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'Bot',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 30,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Image.asset(
-                        'images/o.png',
-                        width: 30,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              _playerCard('O', minimax.currentPlayer),
             ],
           ),
           SizedBox(height: size.height * 0.02),
-          if (minimax.gameResult() == 'DrawGame')
-            Image.asset(
-              'images/${minimax.gameResult()!.toLowerCase()}.png',
-              width: 45,
-            ),
-          if (minimax.gameResult() == 'X')
-            const Text(
-              'You WIN!',
-              style: TextStyle(
-                fontSize: 32,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          if (minimax.gameResult() == 'O')
-            const Text(
-              'You LOSE!',
-              style: TextStyle(
-                fontSize: 32,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          _gameResultWidget(minimax.gameResult()),
           SizedBox(height: size.height * 0.025),
           Padding(
             padding: const EdgeInsets.all(10.0),
@@ -182,5 +91,74 @@ class _TicTacToeState extends State<TicTacToe> {
         },
       ),
     );
+  }
+
+  _playerCard(String player, String currentPlayer) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: currentPlayer == player
+              ? const Color(0xfffed031)
+              : const Color(0xff332167),
+        ),
+        color: const Color(0xff332167),
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            Image.asset(
+              player == 'X' ? 'images/user.png' : 'images/bot.png',
+              width: 55,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              player == 'X' ? 'User' : 'Bot',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 30,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Image.asset(
+              'images/${player.toLowerCase()}.png',
+              width: 30,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  _gameResultWidget(String? result) {
+    switch (result) {
+      case 'DrawGame':
+        return Image.asset(
+          'images/${minimax.gameResult()!.toLowerCase()}.png',
+          width: 45,
+        );
+      case 'X':
+        return const Text(
+          'You WIN!',
+          style: TextStyle(
+            fontSize: 32,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        );
+      case 'O':
+        return const Text(
+          'You LOSE!',
+          style: TextStyle(
+            fontSize: 32,
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+          ),
+        );
+      default:
+        return const SizedBox();
+    }
   }
 }
