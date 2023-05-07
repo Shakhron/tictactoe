@@ -20,7 +20,7 @@ class _TicTacToeState extends State<TicTacToe> {
       body: Column(
         children: [
           SizedBox(
-            height: size.height * 0.1,
+            height: size.height * 0.05,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -53,11 +53,13 @@ class _TicTacToeState extends State<TicTacToe> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      if (minimax.currentPlayer == minimax.minimaxBot) {
-                        return;
-                      } else {
-                        minimax.userMove(index);
-                        setState(() {});
+                      if (minimax.gameResult() == null) {
+                        if (minimax.currentPlayer == minimax.minimaxBot) {
+                          return;
+                        } else {
+                          minimax.userMove(index);
+                          setState(() {});
+                        }
                       }
                     },
                     child: Container(
@@ -78,6 +80,7 @@ class _TicTacToeState extends State<TicTacToe> {
               ),
             ),
           ),
+          const SizedBox(height: 20)
         ],
       ),
       floatingActionButton: IconButton(
